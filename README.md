@@ -18,7 +18,7 @@ For demonstration purposes we have chosen the Framingham CVD model coupled with 
 
 It has been suggested to also include a pre-allocated list as an alternative method to recording simulation results.
 
-   vector('list', 1e8)
-   data.table::set
+    vector('list', 1e8)
+    data.table::set
 
 
