@@ -13,3 +13,12 @@ To compare DES for health economics between the `data.table` and `simmer` packag
 ## Case Study Description
 
 For demonstration purposes we have chosen the Framingham CVD model coupled with a secular death model, and will try to keep the core model code as similar as possible. 
+
+## Alternatives
+
+It has been suggested to also include a pre-allocated list as an alternative method to recording simulation results.
+
+   vector('list', 1e8)
+   data.table::set
+
+
