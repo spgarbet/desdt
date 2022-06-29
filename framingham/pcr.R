@@ -1,3 +1,7 @@
+# Author: Shawn Garbett <shawn.garbett@vumc.org>
+# Vanderbilt University Medical Center, Copyright 2022
+# License: MIT
+
 # Betas from Ref 2. Table A.
 beta_f_w <- c(-29.799, 4.884, 13.540, -3.114, -13.578, 3.149,  2.019,  0,      1.957,  0,     7.574, -1.665, 0.661)
 beta_f_a <- c( 17.114, 0,      0.940,  0,     -18.920, 4.475, 29.291, -6.432, 27.820, -6.087, 0.691,  0,     0.874)
@@ -49,9 +53,20 @@ beta_m_a <- c( 2.469,  0,      0.302,  0,      -0.307, 0,     1.916,   0,      1
 #'  pcr("F", 55, "African American", 213, 50, 120, FALSE, FALSE, FALSE, 1)
 #'  pcr("M", 55, "European", 213, 50, 120, FALSE, FALSE, FALSE, 1)
 #'  pcr("M", 55, "African American", 213, 50, 120, FALSE, FALSE, FALSE, 1)
-pcr <- Vectorize(function(gender, age, race, tot_chol, hdl_chol,
-                          systolic_bp, bp_treatment, smoker, diabetic,
-                          prs_z)
+#'  pcr(c("F", "F", "M", "M"),
+#'      c(55, 55, 55, 55),
+#'      c("European", "African American", "European", "African American"),
+#'      c(213, 213, 213, 213),
+#'      c( 50,  50,  50,  50),
+#'      c(120, 120, 120, 120),
+#'      rep(FALSE, 4),
+#'      rep(FALSE, 4),
+#'      rep(FALSE, 4),
+#'      1:4
+#' )
+pcr <- function(gender, age, race, tot_chol, hdl_chol,
+                systolic_bp, bp_treatment, smoker, diabetic,
+                prs_z)
 {
   if(missing(gender)      || any(!gender %in% c("M", "F")))
     stop("Need to specify gender as 'M' or 'F'")
@@ -73,49 +88,52 @@ pcr <- Vectorize(function(gender, age, race, tot_chol, hdl_chol,
     stop("Need to specify smoker as logical")
   if(missing(prs_z)       || any(prs_z < -5 | prs_z > 5))
     stop("Polygenic risk score must be in the range [-5, 5]")
+  if(length(unique(length(gender), length(age), length(race),
+                   length(tot_chol), length(hdl_chol),
+                   length(systolic_bp), length(bp_treatment),
+                   length(diabetic), length(smoker),
+                   length(prs_z))) != 1)
+    stop("All arguments must be the same length")
   
   # Compute individual values for X
-  X <- c(log(age),
-         log(age)^2,
-         log(tot_chol),
-         log(age)*log(tot_chol),
-         log(hdl_chol),
-         log(age)*log(hdl_chol),
-         ifelse(bp_treatment, log(systolic_bp), 0), 
-         log(age)*ifelse(bp_treatment, log(systolic_bp), 0),
-         ifelse(!bp_treatment, log(systolic_bp), 0),
-         log(age)*ifelse(!bp_treatment, log(systolic_bp), 0),
+  lage  <- log(age)
+  ltc   <- log(tot_chol)
+  lhdl  <- log(hdl_chol)
+  lsbp  <- log(systolic_bp)
+  bpon  <- c(0, lsbp)[bp_treatment+1]
+  bpoff <- c(0, lsbp)[(!bp_treatment)+1]
+  X <- cbind(
+         lage,
+         lage^2,
+         ltc,
+         lage*ltc,
+         lhdl,
+         lage*lhdl,
+         bpon,
+         lage*bpon,
+         bpoff,
+         lage*bpoff,
          smoker,
-         log(age)*smoker,
+         lage*smoker,
          diabetic)
+  genderRace <- (gender == 'F') * 2 + (race == "African American") + 1
+  betas      <- list(beta_m_w, beta_m_a, beta_f_w, beta_f_a)
+  beta       <- do.call(rbind, betas[genderRace])
 
-  beta <- if(gender == "F")
-          {
-            if(race == "African American") beta_f_a else beta_f_w
-          } else { 
-            if(race == "African American") beta_m_a else beta_m_w
-          }
-  
-  expected <- ifelse(gender == "F",
-                ifelse(race == "African American", 86.61, -29.18),
-                ifelse(race == "African American", 19.54,  61.18)
-              )
-  
-  baseline <- ifelse(gender == "F",
-                ifelse(race == "African American", 0.9533, 0.9665),
-                ifelse(race == "African American", 0.8954, 0.9144)
-              )
-  
+  expected   <- c(61.18,  19.54, -29.18,  86.61  )[genderRace]
+  baseline   <- c( 0.9144, 0.8954, 0.9665, 0.9533)[genderRace]
+
   # FIXME
   # Hazard Ratios for polygenic risk scores. Request made for use
   # of values from Mayo Clinic research in private correspondence.
   # Values set to 1 until permission / attribution granted
   HR <- c(              1, 1, 1, 1)[match(race,
         c("African American", "Hispanic", "European", "Other"))]
-    
-
-  100*c(
-    "Pooled Cohort Equation (10y)" = 1 - baseline^exp(sum(beta*X) - expected),
-    "PCE+PRS (10y)"                = 1 - baseline^exp(sum(beta*X) - expected + prs_z*log(HR))
-  )
-},USE.NAMES=FALSE)
+  
+  sbx <- rowSums(beta * X)
+  result <- t(rbind(
+    "Pooled Cohort Equation (10y)" = 1-baseline^exp(sbx - expected),
+    "PCE+PRS (10y)"                = 1-baseline^exp(sbx - expected + prs_z*log(HR))
+  ) * 100)
+  if(dim(result)[1] == 1) result[1,] else result
+}
