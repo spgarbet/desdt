@@ -18,27 +18,26 @@ methods <- c("data.table", "base", "simmer")
 
 # FIXME: Return type is borked, ugh!
 # Considering: https://stackoverflow.com/questions/36982755/r-apply-like-function-that-returns-a-data-frame
-result <- as.data.frame(do.call(rbind,
+result <- as.data.frame(t(
   apply(
-    expand.grid(reps, Ns, models, methods, stringsAsFactors = FALSE),
+    expand.grid(1:length(models), 1:length(methods), Ns, reps),
     1,
     function(x)
     {
-      N      <- as.numeric(x[2])
-      model  <- x[3]
-      method <- x[4]
+      N      <- x[3]
+      model  <- models[x[1]]
+      method <- methods[x[2]]
 
       # FIXME: Stub for doing each timing
-      timing <- system.time(replicate(N*10, rnorm(10000)))
+      timing <- system.time(replicate(N*100, rnorm(100)))
 
-      list(
-         model=x[3],
-         method=x[4],
-         N=N,
-         rep=as.numeric(x[1]),
-         user=timing[1],
-         system=timing[2],
-         elapsed=timing[3])
+
+      c(x, timing[1:3])
     }
   )
 ))
+names(result) <- c("model", "method", "N", "rep", "user", "sys", "elapsed")
+result$model  <- factor(result$model,  levels=1:length(models),  labels=models)
+result$method <- factor(result$method, levels=1:length(methods), labels=methods)
+
+boxplot(user~model+method+N, result)
