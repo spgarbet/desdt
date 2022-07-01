@@ -49,13 +49,13 @@ beta_m_a <- c( 2.469,  0,      0.302,  0,      -0.307, 0,     1.916,   0,      1
 #' @export
 #' @examples 
 #'  pcr("M", 45, "Hispanic", 190, 30, 130, FALSE, TRUE, FALSE, 1)
-#'  pcr("F", 55, "European", 213, 50, 120, FALSE, FALSE, FALSE, 1)
+#'  pcr("F", 55, "White", 213, 50, 120, FALSE, FALSE, FALSE, 1)
 #'  pcr("F", 55, "African American", 213, 50, 120, FALSE, FALSE, FALSE, 1)
-#'  pcr("M", 55, "European", 213, 50, 120, FALSE, FALSE, FALSE, 1)
+#'  pcr("M", 55, "White", 213, 50, 120, FALSE, FALSE, FALSE, 1)
 #'  pcr("M", 55, "African American", 213, 50, 120, FALSE, FALSE, FALSE, 1)
 #'  pcr(c("F", "F", "M", "M"),
 #'      c(55, 55, 55, 55),
-#'      c("European", "African American", "European", "African American"),
+#'      c("White", "African American", "White", "African American"),
 #'      c(213, 213, 213, 213),
 #'      c( 50,  50,  50,  50),
 #'      c(120, 120, 120, 120),
@@ -72,8 +72,8 @@ pcr <- function(gender, age, race, tot_chol, hdl_chol,
     stop("Need to specify gender as 'M' or 'F'")
   if(missing(age)         || any(age < 40 | age > 79))
     stop("Need to specify age in the range [40, 79]")
-  if(missing(race)        || any(!race %in%  c("African American", "Hispanic", "European", "Other")))
-    stop('Need to specify race as "African American", "Hispanic", "European", or "Other"')
+  if(missing(race)        || any(!race %in%  c("African American", "Hispanic", "White", "Other")))
+    stop('Need to specify race as "African American", "Hispanic", "White", or "Other"')
   if(missing(tot_chol)    || any(tot_chol < 30 | tot_chol > 500))
     stop("Need to specify tot_chol in the range [30, 500]")
   if(missing(hdl_chol)    || any(hdl_chol < 5  | hdl_chol > 200))
@@ -128,7 +128,7 @@ pcr <- function(gender, age, race, tot_chol, hdl_chol,
   # of values from Mayo Clinic research in private correspondence.
   # Values set to 1 until permission / attribution granted
   HR <- c(              1, 1, 1, 1)[match(race,
-        c("African American", "Hispanic", "European", "Other"))]
+        c("African American", "Hispanic", "White", "Other"))]
   
   sbx <- rowSums(beta * X)
   result <- t(rbind(
