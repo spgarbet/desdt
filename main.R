@@ -11,6 +11,9 @@
 #     elapsed
 #
 
+library(simmer)
+library(data.table)
+
 reps    <- 1:5
 Ns      <- 10^(2:3)  # For development
 models  <- c("sick_sicker")
