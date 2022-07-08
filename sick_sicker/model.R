@@ -11,8 +11,6 @@ v_n     =  c("H","S1","S2","D") # the model states:
                                 #   Sick (S1)  Sicker (S2)  Dead (D)
 d_c     =  0.03                 # Cost discount rate
 d_e     =  0.03                 # QALY discount rate
-v_Trt   =  c("No Treatment",    # strategy names
-             "Treatment")
 
 # Transition rates
 r_HS1   =  0.15                 # rate to become sick when healthy
@@ -21,7 +19,7 @@ r_S1H   =  0.5                  # rate to become healthy when sick
 r_S1S2  =  0.105                # rate to become sicker when sick
 
 rr_S1   =  3                    # rate ratio of death in sick vs healthy
-rr_S2   =  10             	      # rate ratio of death in sicker vs healthy
+rr_S2   =  10             	    # rate ratio of death in sicker vs healthy
 
 r_HD    =  0.005                # rate of dying when healthy
 
@@ -35,7 +33,6 @@ c_D     =  0                    # cost of death
 u_H     =  1                    # utility when healthy
 u_S1    =  0.75                 # utility when sick
 u_S2    =  0.5                  # utility when sicker
-u_Trt   =  0.95                 # utility when being treated
 u_D     =  0
 
 r_S1D <- rr_S1 * r_HD  	    # rate of death in sick

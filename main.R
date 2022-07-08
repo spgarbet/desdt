@@ -2,24 +2,28 @@
 #  Run  the cartesian product of the following combination
 #     replicant = 1:5
 #     N = 10^(2:7)
-#     model = "sick_sicker" or "PCE"
+#     model  = "sick_sicker" or "PCE"
 #     method = "data.table", "base", "simmer"
 #
 # Measurements (use system.time)
 #     user
 #     system
 #     elapsed
-#
+# of
+#     simulation
+#     summarization
 
 library(simmer)
 library(data.table)
+library(dplyr)
 library(tidyr)
 
 
 reps    <- 1:5
-Ns      <- 10^(2:3)  # For development
+Ns      <- 10^(2:4)  # For development
 models  <- c("sick_sicker")
-methods <- c("data.table", "base", "simmer")
+#methods <- c("data.table", "base", "simmer")
+methods <- c("data.table", "simmer")
 result  <- NA
 
 result <- as.data.frame(t(

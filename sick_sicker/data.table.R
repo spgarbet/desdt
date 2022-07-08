@@ -208,8 +208,8 @@ summarize <- function(dt_demog)
   # Estimation of Costs and effectiveness
 
 
-  for (t in 1:(n_t+1)) {
-
+  for (t in 1:(n_t+1))
+  {
     # Costs
     m_C_D[, t] <- Costs(m_M_D[, t])  # costs accrued by each individual during cycle  t+1
 
