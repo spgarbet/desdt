@@ -250,8 +250,36 @@ simulation <- function(N)
    get_mon_arrivals(env, per_resource = T)
 }
 
+discount_value = function(value, discount, t_A, t_B)
+{
+  r <- (1 + discount)^(1/365.25)-1
+  (value/r)*(exp(-r*t_A)-exp(-r*t_B))
+}
+
 summarize <- function(result)
 {
-  replicate(nrow(result), rnorm(100))
+#  replicate(nrow(result), rnorm(100))
+  result$dQALY <-
+    discount_value(
+      c(u_H, u_S1-u_H, u_S2-u_H)[match(result$resource, c('time_in_model','sick','sicker'))],
+      d_e,
+      result$start_time,
+      result$end_time)
+  result$dCOST <-
+    discount_value(
+      c(c_H, c_S1-c_H, c_S2-c_H)[match(result$resource, c('time_in_model','sick','sicker'))],
+      d_e,
+      result$start_time,
+      result$end_time)
+
+  # Aggregate per patient for final expected value
+  x   <- aggregate(cbind(dQALY, dCOST) ~ name, result, sum)
+  srN <- sqrt(length(x))
+
+  list(cost    = mean(x$dCOST),
+       cost_se = sd(x$dCOST)/srN,
+       qaly    = mean(x$dQALY),
+       qaly_se = sd(x$dQALY)/srN)
 }
+
 
