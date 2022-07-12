@@ -11,7 +11,7 @@
 
 # Next state vectors
 v_when_H  <- c("S1","D")
-v_when_S1 <- c("H","S2","D")
+v_when_S1 <- c("H","S2","D","D")
 v_when_S2 <- c("D")
 
 #'
