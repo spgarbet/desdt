@@ -8,6 +8,7 @@
 ## MIT License
 ##
 
+
 # Next state vectors
 v_when_H  <- c("S1","D")
 v_when_S1 <- c("H","S2","D")
@@ -137,13 +138,13 @@ summarize <- function(dt_demog)
   dt_demog_long_event <- pivot_longer(dt_demog, cols = starts_with("E_"),
                                       names_to = c("State", "event"),
                                       names_pattern =  "(\\w+)\\_(\\d+)") %>%
-    select(c("id", "event", "value")) %>% rename(State = value)
+    dplyr::select(c("id", "event", "value")) %>% rename(State = value)
 
   #Change to long format for time to event
   dt_demog_long_time <- pivot_longer(dt_demog, cols = starts_with("timeE_"),
                                      names_to = c("time", "event"),
                                      names_pattern =  "(\\w+)\\_(\\d+)") %>%
-    select(c("id","event","value")) %>% rename(t_Event = value)
+    dplyr::select(c("id","event","value")) %>% rename(t_Event = value)
 
   #Inner join
   dt_demog_long <- inner_join(dt_demog_long_event,dt_demog_long_time, by = c("id","event") )
